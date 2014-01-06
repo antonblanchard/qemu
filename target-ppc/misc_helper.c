@@ -20,6 +20,8 @@
 #include "helper.h"
 
 #include "helper_regs.h"
+#include "hw/virtio/virtio.h"
+#include "sysemu/kvm.h"
 
 /*****************************************************************************/
 /* SPR accesses */
@@ -119,4 +121,12 @@ target_ulong helper_clcs(CPUPPCState *env, uint32_t arg)
 void ppc_store_msr(CPUPPCState *env, target_ulong value)
 {
     hreg_store_msr(env, value, 0);
+}
+
+bool virtio_legacy_get_byteswap(void)
+{
+    PowerPCCPU *cp = POWERPC_CPU(first_cpu);
+    CPUPPCState *env = &cp->env;
+
+    return env->spr[SPR_LPCR] & LPCR_ILE;
 }
