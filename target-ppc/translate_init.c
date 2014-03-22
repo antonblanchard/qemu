@@ -6747,12 +6747,13 @@ static void gen_spr_book3s (CPUPPCState *env)
                  0x00000000);
 }
 
-static void init_proc_970 (CPUPPCState *env)
+static void gen_spr_970 (CPUPPCState *env)
 {
-    gen_spr_ne_601(env);
-    gen_spr_book3s(env);
-    /* Time base */
-    gen_tbl(env);
+    spr_register(env, SPR_HIOR, "SPR_HIOR",
+                 SPR_NOACCESS, SPR_NOACCESS,
+                 &spr_read_hior, &spr_write_hior,
+                 0x00000000);
+
     /* Hardware implementation registers */
     /* XXX : not implemented */
     spr_register(env, SPR_HID0, "HID0",
@@ -6769,13 +6770,40 @@ static void init_proc_970 (CPUPPCState *env)
                  SPR_NOACCESS, SPR_NOACCESS,
                  &spr_read_generic, &spr_write_generic,
                  POWERPC970_HID5_INIT);
+
+    /* Performance monitors */
+    /* XXX : not implemented */
+    spr_register_kvm(env, SPR_BOOK3S_PMC7, "PMC7",
+                     SPR_NOACCESS, SPR_NOACCESS,
+                     &spr_read_generic, &spr_write_generic,
+                     KVM_REG_PPC_PMC7, 0x00000000);
+    /* XXX : not implemented */
+    spr_register_kvm(env, SPR_BOOK3S_PMC8, "PMC8",
+                     SPR_NOACCESS, SPR_NOACCESS,
+                     &spr_read_generic, &spr_write_generic,
+                     KVM_REG_PPC_PMC8, 0x00000000);
+    /* XXX : not implemented */
+    spr_register(env, SPR_BOOK3S_UPMC7, "UPMC7",
+                 &spr_read_ureg, SPR_NOACCESS,
+                 &spr_read_ureg, SPR_NOACCESS,
+                 0x00000000);
+    /* XXX : not implemented */
+    spr_register(env, SPR_BOOK3S_UPMC8, "UPMC8",
+                 &spr_read_ureg, SPR_NOACCESS,
+                 &spr_read_ureg, SPR_NOACCESS,
+                 0x00000000);
+}
+
+static void init_proc_970 (CPUPPCState *env)
+{
+    gen_spr_ne_601(env);
+    gen_spr_book3s(env);
+    gen_spr_970(env);
+    /* Time base */
+    gen_tbl(env);
     /* Memory management */
     /* XXX: not correct */
     gen_low_BATs(env);
-    spr_register(env, SPR_HIOR, "SPR_HIOR",
-                 SPR_NOACCESS, SPR_NOACCESS,
-                 &spr_read_hior, &spr_write_hior,
-                 0x00000000);
 #if !defined(CONFIG_USER_ONLY)
     env->slb_nr = 32;
 #endif
@@ -6833,31 +6861,12 @@ static void init_proc_970FX (CPUPPCState *env)
 {
     gen_spr_ne_601(env);
     gen_spr_book3s(env);
+    gen_spr_970(env);
     /* Time base */
     gen_tbl(env);
-    /* Hardware implementation registers */
-    /* XXX : not implemented */
-    spr_register(env, SPR_HID0, "HID0",
-                 SPR_NOACCESS, SPR_NOACCESS,
-                 &spr_read_generic, &spr_write_clear,
-                 0x60000000);
-    /* XXX : not implemented */
-    spr_register(env, SPR_HID1, "HID1",
-                 SPR_NOACCESS, SPR_NOACCESS,
-                 &spr_read_generic, &spr_write_generic,
-                 0x00000000);
-    /* XXX : not implemented */
-    spr_register(env, SPR_970_HID5, "HID5",
-                 SPR_NOACCESS, SPR_NOACCESS,
-                 &spr_read_generic, &spr_write_generic,
-                 POWERPC970_HID5_INIT);
     /* Memory management */
     /* XXX: not correct */
     gen_low_BATs(env);
-    spr_register(env, SPR_HIOR, "SPR_HIOR",
-                 SPR_NOACCESS, SPR_NOACCESS,
-                 &spr_read_hior, &spr_write_hior,
-                 0x00000000);
     spr_register(env, SPR_CTRL, "SPR_CTRL",
                  SPR_NOACCESS, SPR_NOACCESS,
                  SPR_NOACCESS, &spr_write_generic,
@@ -6927,32 +6936,12 @@ static void init_proc_970MP (CPUPPCState *env)
 {
     gen_spr_ne_601(env);
     gen_spr_book3s(env);
+    gen_spr_970(env);
     /* Time base */
     gen_tbl(env);
-    /* Hardware implementation registers */
-    /* XXX : not implemented */
-    spr_register(env, SPR_HID0, "HID0",
-                 SPR_NOACCESS, SPR_NOACCESS,
-                 &spr_read_generic, &spr_write_clear,
-                 0x60000000);
-    /* XXX : not implemented */
-    spr_register(env, SPR_HID1, "HID1",
-                 SPR_NOACCESS, SPR_NOACCESS,
-                 &spr_read_generic, &spr_write_generic,
-                 0x00000000);
-    /* XXX : not implemented */
-    spr_register(env, SPR_970_HID5, "HID5",
-                 SPR_NOACCESS, SPR_NOACCESS,
-                 &spr_read_generic, &spr_write_generic,
-                 POWERPC970_HID5_INIT);
-    /* XXX : not implemented */
     /* Memory management */
     /* XXX: not correct */
     gen_low_BATs(env);
-    spr_register(env, SPR_HIOR, "SPR_HIOR",
-                 SPR_NOACCESS, SPR_NOACCESS,
-                 &spr_read_hior, &spr_write_hior,
-                 0x00000000);
     /* Logical partitionning */
     spr_register_kvm(env, SPR_LPCR, "LPCR",
                      SPR_NOACCESS, SPR_NOACCESS,
