@@ -6629,10 +6629,128 @@ static int check_pow_970 (CPUPPCState *env)
     return 0;
 }
 
+/* SPR common to all book3s implementations */
+static void gen_spr_book3s (CPUPPCState *env)
+{
+    /* Breakpoints */
+    /* XXX : not implemented */
+    spr_register_kvm(env, SPR_DABR, "DABR",
+                     SPR_NOACCESS, SPR_NOACCESS,
+                     &spr_read_generic, &spr_write_generic,
+                     KVM_REG_PPC_DABR, 0x00000000);
+    /* XXX : not implemented */
+    spr_register(env, SPR_IABR, "IABR",
+                 SPR_NOACCESS, SPR_NOACCESS,
+                 &spr_read_generic, &spr_write_generic,
+                 0x00000000);
+
+    /* Performance monitors */
+    /* XXX : not implemented */
+    spr_register_kvm(env, SPR_BOOK3S_MMCR0, "MMCR0",
+                     SPR_NOACCESS, SPR_NOACCESS,
+                     &spr_read_generic, &spr_write_generic,
+                     KVM_REG_PPC_MMCR0, 0x00000000);
+    /* XXX : not implemented */
+    spr_register_kvm(env, SPR_BOOK3S_MMCR1, "MMCR1",
+                     SPR_NOACCESS, SPR_NOACCESS,
+                     &spr_read_generic, &spr_write_generic,
+                     KVM_REG_PPC_MMCR1, 0x00000000);
+    /* XXX : not implemented */
+    spr_register_kvm(env, SPR_BOOK3S_PMC1, "PMC1",
+                     SPR_NOACCESS, SPR_NOACCESS,
+                     &spr_read_generic, &spr_write_generic,
+                     KVM_REG_PPC_PMC1, 0x00000000);
+    /* XXX : not implemented */
+    spr_register_kvm(env, SPR_BOOK3S_PMC2, "PMC2",
+                     SPR_NOACCESS, SPR_NOACCESS,
+                     &spr_read_generic, &spr_write_generic,
+                     KVM_REG_PPC_PMC2, 0x00000000);
+    /* XXX : not implemented */
+    spr_register_kvm(env, SPR_BOOK3S_PMC3, "PMC3",
+                     SPR_NOACCESS, SPR_NOACCESS,
+                     &spr_read_generic, &spr_write_generic,
+                     KVM_REG_PPC_PMC3, 0x00000000);
+    /* XXX : not implemented */
+    spr_register_kvm(env, SPR_BOOK3S_PMC4, "PMC4",
+                     SPR_NOACCESS, SPR_NOACCESS,
+                     &spr_read_generic, &spr_write_generic,
+                     KVM_REG_PPC_PMC4, 0x00000000);
+    /* XXX : not implemented */
+    spr_register_kvm(env, SPR_BOOK3S_PMC5, "PMC5",
+                     SPR_NOACCESS, SPR_NOACCESS,
+                     &spr_read_generic, &spr_write_generic,
+                     KVM_REG_PPC_PMC5, 0x00000000);
+    /* XXX : not implemented */
+    spr_register_kvm(env, SPR_BOOK3S_PMC6, "PMC6",
+                     SPR_NOACCESS, SPR_NOACCESS,
+                     &spr_read_generic, &spr_write_generic,
+                     KVM_REG_PPC_PMC6, 0x00000000);
+    /* XXX : not implemented */
+    spr_register_kvm(env, SPR_BOOK3S_SIAR, "SIAR",
+                     SPR_NOACCESS, SPR_NOACCESS,
+                     &spr_read_generic, SPR_NOACCESS,
+                     KVM_REG_PPC_SIAR, 0x00000000);
+    /* XXX : not implemented */
+    spr_register_kvm(env, SPR_BOOK3S_SDAR, "SDAR",
+                     SPR_NOACCESS, SPR_NOACCESS,
+                     &spr_read_generic, SPR_NOACCESS,
+                     KVM_REG_PPC_SDAR, 0x00000000);
+    /* XXX : not implemented */
+    spr_register(env, SPR_BOOK3S_UMMCR0, "UMMCR0",
+                 &spr_read_ureg, SPR_NOACCESS,
+                 &spr_read_ureg, SPR_NOACCESS,
+                 0x00000000);
+    /* XXX : not implemented */
+    spr_register(env, SPR_BOOK3S_UMMCR1, "UMMCR1",
+                 &spr_read_ureg, SPR_NOACCESS,
+                 &spr_read_ureg, SPR_NOACCESS,
+                 0x00000000);
+    /* XXX : not implemented */
+    spr_register(env, SPR_BOOK3S_UPMC1, "UPMC1",
+                 &spr_read_ureg, SPR_NOACCESS,
+                 &spr_read_ureg, SPR_NOACCESS,
+                 0x00000000);
+    /* XXX : not implemented */
+    spr_register(env, SPR_BOOK3S_UPMC2, "UPMC2",
+                 &spr_read_ureg, SPR_NOACCESS,
+                 &spr_read_ureg, SPR_NOACCESS,
+                 0x00000000);
+    /* XXX : not implemented */
+    spr_register(env, SPR_BOOK3S_UPMC3, "UPMC3",
+                 &spr_read_ureg, SPR_NOACCESS,
+                 &spr_read_ureg, SPR_NOACCESS,
+                 0x00000000);
+    /* XXX : not implemented */
+    spr_register(env, SPR_BOOK3S_UPMC4, "UPMC4",
+                 &spr_read_ureg, SPR_NOACCESS,
+                 &spr_read_ureg, SPR_NOACCESS,
+                 0x00000000);
+    /* XXX : not implemented */
+    spr_register(env, SPR_BOOK3S_UPMC5, "UPMC5",
+                 &spr_read_ureg, SPR_NOACCESS,
+                 &spr_read_ureg, SPR_NOACCESS,
+                 0x00000000);
+    /* XXX : not implemented */
+    spr_register(env, SPR_BOOK3S_UPMC6, "UPMC6",
+                 &spr_read_ureg, SPR_NOACCESS,
+                 &spr_read_ureg, SPR_NOACCESS,
+                 0x00000000);
+    /* XXX : not implemented */
+    spr_register(env, SPR_BOOK3S_USIAR, "USIAR",
+                 &spr_read_ureg, SPR_NOACCESS,
+                 &spr_read_ureg, SPR_NOACCESS,
+                 0x00000000);
+    /* XXX : not implemented */
+    spr_register(env, SPR_BOOK3S_USDAR, "USDAR",
+                 &spr_read_ureg, SPR_NOACCESS,
+                 &spr_read_ureg, SPR_NOACCESS,
+                 0x00000000);
+}
+
 static void init_proc_970 (CPUPPCState *env)
 {
     gen_spr_ne_601(env);
-    gen_spr_7xx(env);
+    gen_spr_book3s(env);
     /* Time base */
     gen_tbl(env);
     /* Hardware implementation registers */
@@ -6714,7 +6832,7 @@ static int check_pow_970FX (CPUPPCState *env)
 static void init_proc_970FX (CPUPPCState *env)
 {
     gen_spr_ne_601(env);
-    gen_spr_7xx(env);
+    gen_spr_book3s(env);
     /* Time base */
     gen_tbl(env);
     /* Hardware implementation registers */
@@ -6808,7 +6926,7 @@ static int check_pow_970MP (CPUPPCState *env)
 static void init_proc_970MP (CPUPPCState *env)
 {
     gen_spr_ne_601(env);
-    gen_spr_7xx(env);
+    gen_spr_book3s(env);
     /* Time base */
     gen_tbl(env);
     /* Hardware implementation registers */
@@ -6888,7 +7006,7 @@ POWERPC_FAMILY(970MP)(ObjectClass *oc, void *data)
 static void init_proc_power5plus(CPUPPCState *env)
 {
     gen_spr_ne_601(env);
-    gen_spr_7xx(env);
+    gen_spr_book3s(env);
     /* Time base */
     gen_tbl(env);
     /* Hardware implementation registers */
@@ -6980,7 +7098,7 @@ POWERPC_FAMILY(POWER5P)(ObjectClass *oc, void *data)
 static void init_proc_POWER7 (CPUPPCState *env)
 {
     gen_spr_ne_601(env);
-    gen_spr_7xx(env);
+    gen_spr_book3s(env);
     /* Time base */
     gen_tbl(env);
     /* Processor identification */
@@ -7006,18 +7124,11 @@ static void init_proc_POWER7 (CPUPPCState *env)
                      SPR_NOACCESS, SPR_NOACCESS,
                      &spr_read_generic, &spr_write_generic,
                      KVM_REG_PPC_DSCR, 0x00000000);
-    spr_register_kvm(env, SPR_MMCRA, "SPR_MMCRA",
+    spr_register_kvm(env, SPR_BOOK3S_MMCRA, "SPR_MMCRA",
                      SPR_NOACCESS, SPR_NOACCESS,
                      &spr_read_generic, &spr_write_generic,
                      KVM_REG_PPC_MMCRA, 0x00000000);
-    spr_register_kvm(env, SPR_PMC5, "SPR_PMC5",
-                     SPR_NOACCESS, SPR_NOACCESS,
-                     &spr_read_generic, &spr_write_generic,
-                     KVM_REG_PPC_PMC5, 0x00000000);
-    spr_register_kvm(env, SPR_PMC6, "SPR_PMC6",
-                     SPR_NOACCESS, SPR_NOACCESS,
-                     &spr_read_generic, &spr_write_generic,
-                     KVM_REG_PPC_PMC6, 0x00000000);
+
 #endif /* !CONFIG_USER_ONLY */
     gen_spr_amr(env);
     /* XXX : not implemented */
