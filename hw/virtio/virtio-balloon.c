@@ -30,6 +30,7 @@
 #endif
 
 #include "hw/virtio/virtio-bus.h"
+#include "hw/virtio/virtio-access.h"
 
 static void balloon_page(void *addr, int deflate)
 {
@@ -192,7 +193,8 @@ static void virtio_balloon_handle_output(VirtIODevice *vdev, VirtQueue *vq)
             ram_addr_t pa;
             ram_addr_t addr;
 
-            pa = (ram_addr_t)ldl_p(&pfn) << VIRTIO_BALLOON_PFN_SHIFT;
+            pa = (ram_addr_t)virtio_ldl_p(&pfn,
+                                          vdev) << VIRTIO_BALLOON_PFN_SHIFT;
             offset += 4;
 
             /* FIXME: remove get_system_memory(), but how? */
