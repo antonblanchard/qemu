@@ -102,53 +102,57 @@ static void virtqueue_init(VirtQueue *vq)
                                  vq->vring.align);
 }
 
-static inline uint64_t vring_desc_addr(hwaddr desc_pa, int i)
+static inline uint64_t vring_desc_addr(hwaddr desc_pa, int i,
+                                       struct VirtIODevice *vdev)
 {
     hwaddr pa;
     pa = desc_pa + sizeof(VRingDesc) * i + offsetof(VRingDesc, addr);
-    return ldq_phys(&address_space_memory, pa);
+    return virtio_ldq_phys(&address_space_memory, pa, vdev);
 }
 
-static inline uint32_t vring_desc_len(hwaddr desc_pa, int i)
+static inline uint32_t vring_desc_len(hwaddr desc_pa, int i,
+                                      struct VirtIODevice *vdev)
 {
     hwaddr pa;
     pa = desc_pa + sizeof(VRingDesc) * i + offsetof(VRingDesc, len);
-    return ldl_phys(&address_space_memory, pa);
+    return virtio_ldl_phys(&address_space_memory, pa, vdev);
 }
 
-static inline uint16_t vring_desc_flags(hwaddr desc_pa, int i)
+static inline uint16_t vring_desc_flags(hwaddr desc_pa, int i,
+                                        struct VirtIODevice *vdev)
 {
     hwaddr pa;
     pa = desc_pa + sizeof(VRingDesc) * i + offsetof(VRingDesc, flags);
-    return lduw_phys(&address_space_memory, pa);
+    return virtio_lduw_phys(&address_space_memory, pa, vdev);
 }
 
-static inline uint16_t vring_desc_next(hwaddr desc_pa, int i)
+static inline uint16_t vring_desc_next(hwaddr desc_pa, int i,
+                                       struct VirtIODevice *vdev)
 {
     hwaddr pa;
     pa = desc_pa + sizeof(VRingDesc) * i + offsetof(VRingDesc, next);
-    return lduw_phys(&address_space_memory, pa);
+    return virtio_lduw_phys(&address_space_memory, pa, vdev);
 }
 
 static inline uint16_t vring_avail_flags(VirtQueue *vq)
 {
     hwaddr pa;
     pa = vq->vring.avail + offsetof(VRingAvail, flags);
-    return lduw_phys(&address_space_memory, pa);
+    return virtio_lduw_phys(&address_space_memory, pa, vq->vdev);
 }
 
 static inline uint16_t vring_avail_idx(VirtQueue *vq)
 {
     hwaddr pa;
     pa = vq->vring.avail + offsetof(VRingAvail, idx);
-    return lduw_phys(&address_space_memory, pa);
+    return virtio_lduw_phys(&address_space_memory, pa, vq->vdev);
 }
 
 static inline uint16_t vring_avail_ring(VirtQueue *vq, int i)
 {
     hwaddr pa;
     pa = vq->vring.avail + offsetof(VRingAvail, ring[i]);
-    return lduw_phys(&address_space_memory, pa);
+    return virtio_lduw_phys(&address_space_memory, pa, vq->vdev);
 }
 
 static inline uint16_t vring_used_event(VirtQueue *vq)
@@ -160,44 +164,46 @@ static inline void vring_used_ring_id(VirtQueue *vq, int i, uint32_t val)
 {
     hwaddr pa;
     pa = vq->vring.used + offsetof(VRingUsed, ring[i].id);
-    stl_phys(&address_space_memory, pa, val);
+    virtio_stl_phys(&address_space_memory, pa, val, vq->vdev);
 }
 
 static inline void vring_used_ring_len(VirtQueue *vq, int i, uint32_t val)
 {
     hwaddr pa;
     pa = vq->vring.used + offsetof(VRingUsed, ring[i].len);
-    stl_phys(&address_space_memory, pa, val);
+    virtio_stl_phys(&address_space_memory, pa, val, vq->vdev);
 }
 
 static uint16_t vring_used_idx(VirtQueue *vq)
 {
     hwaddr pa;
     pa = vq->vring.used + offsetof(VRingUsed, idx);
-    return lduw_phys(&address_space_memory, pa);
+    return virtio_lduw_phys(&address_space_memory, pa, vq->vdev);
 }
 
 static inline void vring_used_idx_set(VirtQueue *vq, uint16_t val)
 {
     hwaddr pa;
     pa = vq->vring.used + offsetof(VRingUsed, idx);
-    stw_phys(&address_space_memory, pa, val);
+    virtio_stw_phys(&address_space_memory, pa, val, vq->vdev);
 }
 
 static inline void vring_used_flags_set_bit(VirtQueue *vq, int mask)
 {
     hwaddr pa;
     pa = vq->vring.used + offsetof(VRingUsed, flags);
-    stw_phys(&address_space_memory,
-             pa, lduw_phys(&address_space_memory, pa) | mask);
+    virtio_stw_phys(&address_space_memory, pa,
+                    virtio_lduw_phys(&address_space_memory, pa,
+                                     vq->vdev) | mask, vq->vdev);
 }
 
 static inline void vring_used_flags_unset_bit(VirtQueue *vq, int mask)
 {
     hwaddr pa;
     pa = vq->vring.used + offsetof(VRingUsed, flags);
-    stw_phys(&address_space_memory,
-             pa, lduw_phys(&address_space_memory, pa) & ~mask);
+    virtio_stw_phys(&address_space_memory, pa,
+                    virtio_lduw_phys(&address_space_memory, pa,
+                                     vq->vdev) & ~mask, vq->vdev);
 }
 
 static inline void vring_avail_event(VirtQueue *vq, uint16_t val)
@@ -207,7 +213,7 @@ static inline void vring_avail_event(VirtQueue *vq, uint16_t val)
         return;
     }
     pa = vq->vring.used + offsetof(VRingUsed, ring[vq->vring.num]);
-    stw_phys(&address_space_memory, pa, val);
+    virtio_stw_phys(&address_space_memory, pa, val, vq->vdev);
 }
 
 void virtio_queue_set_notification(VirtQueue *vq, int enable)
@@ -325,16 +331,18 @@ static unsigned int virtqueue_get_head(VirtQueue *vq, unsigned int idx)
 }
 
 static unsigned virtqueue_next_desc(hwaddr desc_pa,
-                                    unsigned int i, unsigned int max)
+                                    unsigned int i, unsigned int max,
+                                    struct VirtIODevice *vdev)
 {
     unsigned int next;
 
     /* If this descriptor says it doesn't chain, we're done. */
-    if (!(vring_desc_flags(desc_pa, i) & VRING_DESC_F_NEXT))
+    if (!(vring_desc_flags(desc_pa, i, vdev) & VRING_DESC_F_NEXT)) {
         return max;
+    }
 
     /* Check they're not leading us off end of descriptors. */
-    next = vring_desc_next(desc_pa, i);
+    next = vring_desc_next(desc_pa, i, vdev);
     /* Make sure compiler knows to grab that: we don't want it changing! */
     smp_wmb();
 
@@ -366,8 +374,9 @@ void virtqueue_get_avail_bytes(VirtQueue *vq, unsigned int *in_bytes,
         i = virtqueue_get_head(vq, idx++);
         desc_pa = vq->vring.desc;
 
-        if (vring_desc_flags(desc_pa, i) & VRING_DESC_F_INDIRECT) {
-            if (vring_desc_len(desc_pa, i) % sizeof(VRingDesc)) {
+        if (vring_desc_flags(desc_pa, i, vq->vdev)
+            & VRING_DESC_F_INDIRECT) {
+            if (vring_desc_len(desc_pa, i, vq->vdev) % sizeof(VRingDesc)) {
                 error_report("Invalid size for indirect buffer table");
                 exit(1);
             }
@@ -380,8 +389,8 @@ void virtqueue_get_avail_bytes(VirtQueue *vq, unsigned int *in_bytes,
 
             /* loop over the indirect descriptor table */
             indirect = 1;
-            max = vring_desc_len(desc_pa, i) / sizeof(VRingDesc);
-            desc_pa = vring_desc_addr(desc_pa, i);
+            max = vring_desc_len(desc_pa, i, vq->vdev) / sizeof(VRingDesc);
+            desc_pa = vring_desc_addr(desc_pa, i, vq->vdev);
             num_bufs = i = 0;
         }
 
@@ -392,15 +401,17 @@ void virtqueue_get_avail_bytes(VirtQueue *vq, unsigned int *in_bytes,
                 exit(1);
             }
 
-            if (vring_desc_flags(desc_pa, i) & VRING_DESC_F_WRITE) {
-                in_total += vring_desc_len(desc_pa, i);
+            if (vring_desc_flags(desc_pa, i, vq->vdev)
+                & VRING_DESC_F_WRITE) {
+                in_total += vring_desc_len(desc_pa, i, vq->vdev);
             } else {
-                out_total += vring_desc_len(desc_pa, i);
+                out_total += vring_desc_len(desc_pa, i, vq->vdev);
             }
             if (in_total >= max_in_bytes && out_total >= max_out_bytes) {
                 goto done;
             }
-        } while ((i = virtqueue_next_desc(desc_pa, i, max)) != max);
+        } while ((i = virtqueue_next_desc(desc_pa, i, max, vq->vdev))
+                 != max);
 
         if (!indirect)
             total_bufs = num_bufs;
@@ -459,15 +470,15 @@ int virtqueue_pop(VirtQueue *vq, VirtQueueElement *elem)
         vring_avail_event(vq, vring_avail_idx(vq));
     }
 
-    if (vring_desc_flags(desc_pa, i) & VRING_DESC_F_INDIRECT) {
-        if (vring_desc_len(desc_pa, i) % sizeof(VRingDesc)) {
+    if (vring_desc_flags(desc_pa, i, vq->vdev) & VRING_DESC_F_INDIRECT) {
+        if (vring_desc_len(desc_pa, i, vq->vdev) % sizeof(VRingDesc)) {
             error_report("Invalid size for indirect buffer table");
             exit(1);
         }
 
         /* loop over the indirect descriptor table */
-        max = vring_desc_len(desc_pa, i) / sizeof(VRingDesc);
-        desc_pa = vring_desc_addr(desc_pa, i);
+        max = vring_desc_len(desc_pa, i, vq->vdev) / sizeof(VRingDesc);
+        desc_pa = vring_desc_addr(desc_pa, i, vq->vdev);
         i = 0;
     }
 
@@ -475,30 +486,32 @@ int virtqueue_pop(VirtQueue *vq, VirtQueueElement *elem)
     do {
         struct iovec *sg;
 
-        if (vring_desc_flags(desc_pa, i) & VRING_DESC_F_WRITE) {
+        if (vring_desc_flags(desc_pa, i, vq->vdev) & VRING_DESC_F_WRITE) {
             if (elem->in_num >= ARRAY_SIZE(elem->in_sg)) {
                 error_report("Too many write descriptors in indirect table");
                 exit(1);
             }
-            elem->in_addr[elem->in_num] = vring_desc_addr(desc_pa, i);
+            elem->in_addr[elem->in_num] = vring_desc_addr(desc_pa, i,
+                                                          vq->vdev);
             sg = &elem->in_sg[elem->in_num++];
         } else {
             if (elem->out_num >= ARRAY_SIZE(elem->out_sg)) {
                 error_report("Too many read descriptors in indirect table");
                 exit(1);
             }
-            elem->out_addr[elem->out_num] = vring_desc_addr(desc_pa, i);
+            elem->out_addr[elem->out_num] = vring_desc_addr(desc_pa, i,
+                                                            vq->vdev);
             sg = &elem->out_sg[elem->out_num++];
         }
 
-        sg->iov_len = vring_desc_len(desc_pa, i);
+        sg->iov_len = vring_desc_len(desc_pa, i, vq->vdev);
 
         /* If we've got too many, that implies a descriptor loop. */
         if ((elem->in_num + elem->out_num) > max) {
             error_report("Looped descriptor");
             exit(1);
         }
-    } while ((i = virtqueue_next_desc(desc_pa, i, max)) != max);
+    } while ((i = virtqueue_next_desc(desc_pa, i, max, vq->vdev)) != max);
 
     /* Now map what we have collected */
     virtqueue_map_sg(elem->in_sg, elem->in_addr, elem->in_num, 1);
