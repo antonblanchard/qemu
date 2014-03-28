@@ -19,6 +19,7 @@
 #include "hw/virtio/virtio.h"
 #include "qemu/atomic.h"
 #include "hw/virtio/virtio-bus.h"
+#include "hw/virtio/virtio-access.h"
 
 /*
  * The alignment to use between consumer and producer parts of vring.
@@ -546,6 +547,8 @@ void virtio_reset(void *opaque)
 
     virtio_set_status(vdev, 0);
 
+    vdev->needs_byteswap = virtio_legacy_get_byteswap();
+
     if (k->reset) {
         k->reset(vdev);
     }
@@ -845,6 +848,7 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
 
     qemu_put_8s(f, &vdev->status);
     qemu_put_8s(f, &vdev->isr);
+    qemu_put_8s(f, (uint8_t *) &vdev->needs_byteswap);
     qemu_put_be16s(f, &vdev->queue_sel);
     qemu_put_be32s(f, &vdev->guest_features);
     qemu_put_be32(f, vdev->config_len);
@@ -905,6 +909,7 @@ int virtio_load(VirtIODevice *vdev, QEMUFile *f)
 
     qemu_get_8s(f, &vdev->status);
     qemu_get_8s(f, &vdev->isr);
+    qemu_get_8s(f, (uint8_t *) &vdev->needs_byteswap);
     qemu_get_be16s(f, &vdev->queue_sel);
     qemu_get_be32s(f, &features);
 

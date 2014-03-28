@@ -121,6 +121,7 @@ struct VirtIODevice
     bool vm_running;
     VMChangeStateEntry *vmstate;
     char *bus_name;
+    bool needs_byteswap;
 };
 
 typedef struct VirtioDeviceClass {
@@ -253,4 +254,6 @@ void virtio_queue_set_host_notifier_fd_handler(VirtQueue *vq, bool assign,
                                                bool set_handler);
 void virtio_queue_notify_vq(VirtQueue *vq);
 void virtio_irq(VirtQueue *vq);
+
+extern bool virtio_legacy_get_byteswap(void);
 #endif
