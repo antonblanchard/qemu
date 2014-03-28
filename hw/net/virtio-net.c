@@ -23,6 +23,7 @@
 #include "hw/virtio/virtio-bus.h"
 #include "qapi/qmp/qjson.h"
 #include "monitor/monitor.h"
+#include "hw/virtio/virtio-access.h"
 
 #define VIRTIO_NET_VM_VERSION    11
 
@@ -72,8 +73,8 @@ static void virtio_net_get_config(VirtIODevice *vdev, uint8_t *config)
     VirtIONet *n = VIRTIO_NET(vdev);
     struct virtio_net_config netcfg;
 
-    stw_p(&netcfg.status, n->status);
-    stw_p(&netcfg.max_virtqueue_pairs, n->max_queues);
+    virtio_stw_p(&netcfg.status, n->status, vdev);
+    virtio_stw_p(&netcfg.max_virtqueue_pairs, n->max_queues, vdev);
     memcpy(netcfg.mac, n->mac, ETH_ALEN);
     memcpy(config, &netcfg, n->config_size);
 }
@@ -614,6 +615,7 @@ static int virtio_net_handle_mac(VirtIONet *n, uint8_t cmd,
     struct virtio_net_ctrl_mac mac_data;
     size_t s;
     NetClientState *nc = qemu_get_queue(n->nic);
+    VirtIODevice *vdev = VIRTIO_DEVICE(n);
 
     if (cmd == VIRTIO_NET_CTRL_MAC_ADDR_SET) {
         if (iov_size(iov, iov_cnt) != sizeof(n->mac)) {
@@ -639,7 +641,7 @@ static int virtio_net_handle_mac(VirtIONet *n, uint8_t cmd,
 
     s = iov_to_buf(iov, iov_cnt, 0, &mac_data.entries,
                    sizeof(mac_data.entries));
-    mac_data.entries = ldl_p(&mac_data.entries);
+    mac_data.entries = virtio_ldl_p(&mac_data.entries, vdev);
     if (s != sizeof(mac_data.entries)) {
         goto error;
     }
@@ -666,7 +668,7 @@ static int virtio_net_handle_mac(VirtIONet *n, uint8_t cmd,
 
     s = iov_to_buf(iov, iov_cnt, 0, &mac_data.entries,
                    sizeof(mac_data.entries));
-    mac_data.entries = ldl_p(&mac_data.entries);
+    mac_data.entries = virtio_ldl_p(&mac_data.entries, vdev);
     if (s != sizeof(mac_data.entries)) {
         goto error;
     }
@@ -709,9 +711,10 @@ static int virtio_net_handle_vlan_table(VirtIONet *n, uint8_t cmd,
     uint16_t vid;
     size_t s;
     NetClientState *nc = qemu_get_queue(n->nic);
+    VirtIODevice *vdev = VIRTIO_DEVICE(n);
 
     s = iov_to_buf(iov, iov_cnt, 0, &vid, sizeof(vid));
-    vid = lduw_p(&vid);
+    vid = virtio_lduw_p(&vid, vdev);
     if (s != sizeof(vid)) {
         return VIRTIO_NET_ERR;
     }
@@ -748,7 +751,7 @@ static int virtio_net_handle_mq(VirtIONet *n, uint8_t cmd,
         return VIRTIO_NET_ERR;
     }
 
-    queues = lduw_p(&mq.virtqueue_pairs);
+    queues = virtio_lduw_p(&mq.virtqueue_pairs, vdev);
 
     if (queues < VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MIN ||
         queues > VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MAX ||
@@ -1047,7 +1050,7 @@ static ssize_t virtio_net_receive(NetClientState *nc, const uint8_t *buf, size_t
     }
 
     if (mhdr_cnt) {
-        stw_p(&mhdr.num_buffers, i);
+        virtio_stw_p(&mhdr.num_buffers, i, vdev);
         iov_from_buf(mhdr_sg, mhdr_cnt,
                      0,
                      &mhdr.num_buffers, sizeof mhdr.num_buffers);
