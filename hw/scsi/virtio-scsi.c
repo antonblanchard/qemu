@@ -521,8 +521,8 @@ static void virtio_scsi_push_event(VirtIOSCSI *s, SCSIDevice *dev,
 
     evt = req->resp.event;
     memset(evt, 0, sizeof(VirtIOSCSIEvent));
-    evt->event = virtio_tswap32(event);
-    evt->reason = virtio_tswap32(reason);
+    evt->event = virtio_tswap32(event, VIRTIO_DEVICE(s));
+    evt->reason = virtio_tswap32(reason, VIRTIO_DEVICE(s));
     if (!dev) {
         assert(event == VIRTIO_SCSI_T_EVENTS_MISSED);
     } else {
