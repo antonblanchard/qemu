@@ -4464,7 +4464,7 @@ static void spapr_machine_class_init(ObjectClass *oc, void *data)
     mc->init = spapr_machine_init;
     mc->reset = spapr_machine_reset;
     mc->block_default_type = IF_SCSI;
-    mc->max_cpus = 1024;
+    mc->max_cpus = 8192;
     mc->no_parallel = 1;
     mc->default_boot_order = "";
     mc->default_ram_size = 512 * MiB;
