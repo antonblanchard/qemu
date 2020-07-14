@@ -127,7 +127,7 @@ void *qemu_ram_mmap(int fd,
     flags = MAP_PRIVATE | MAP_ANONYMOUS;
 #endif
 
-    guardptr = mmap(0, total, PROT_NONE, flags, guardfd, 0);
+    guardptr = mmap((void *)-1, total, PROT_NONE, flags, guardfd, 0);
 
     if (guardptr == MAP_FAILED) {
         return MAP_FAILED;
