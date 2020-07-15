@@ -102,7 +102,7 @@ typedef enum {
 #define SPAPR_CAP_FIXED_CCD             0x03
 #define SPAPR_CAP_FIXED_NA              0x10 /* Lets leave a bit of a gap... */
 
-#define FDT_MAX_SIZE                    0x100000
+#define FDT_MAX_SIZE                    0x400000
 
 typedef struct SpaprCapabilities SpaprCapabilities;
 struct SpaprCapabilities {
