@@ -4254,6 +4254,8 @@ static void spapr_phb_placement(SpaprMachineState *spapr, uint32_t index,
      * PHB stacked together.  (32TiB+2GiB)..(32TiB+64GiB) contains the
      * 2GiB 32-bit MMIO windows for each PHB.  Then 33..64TiB has the
      * 1TiB 64-bit MMIO windows for each PHB.
+     *
+     * Testing with PCI at 2^50
      */
     const uint64_t base_buid = 0x800000020000000ULL;
     int i;

@@ -103,8 +103,8 @@ struct SpaprPhbState {
 #define SPAPR_PCI_MEM64_WIN_SIZE     0x10000000000ULL /* 1 TiB */
 
 /* All PCI outbound windows will be within this range */
-#define SPAPR_PCI_BASE               (1ULL << 45) /* 32 TiB */
-#define SPAPR_PCI_LIMIT              (1ULL << 46) /* 64 TiB */
+#define SPAPR_PCI_BASE               (1ULL << 50) /* 1024 TiB */
+#define SPAPR_PCI_LIMIT              ((1ULL << 50) | (1ULL << 45)) /* 1056 TiB */
 
 #define SPAPR_MAX_PHBS ((SPAPR_PCI_LIMIT - SPAPR_PCI_BASE) / \
                         SPAPR_PCI_MEM64_WIN_SIZE - 1)
