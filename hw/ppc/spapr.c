@@ -4507,10 +4507,10 @@ static void spapr_machine_class_init(ObjectClass *oc, void *data)
     xic->icp_get = spapr_icp_get;
     ispc->print_info = spapr_pic_print_info;
     /* Force NUMA node memory size to be a multiple of
-     * SPAPR_MEMORY_BLOCK_SIZE (256M) since that's the granularity
+     * SPAPR_MEMORY_BLOCK_SIZE (16GB) since that's the granularity
      * in which LMBs are represented and hot-added
      */
-    mc->numa_mem_align_shift = 28;
+    mc->numa_mem_align_shift = 34;
     mc->auto_enable_numa = true;
 
     smc->default_caps.caps[SPAPR_CAP_HTM] = SPAPR_CAP_OFF;

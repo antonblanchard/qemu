@@ -862,7 +862,7 @@ int spapr_rtc_import_offset(SpaprRtcState *rtc, int64_t legacy_offset);
 
 #define TYPE_SPAPR_RNG "spapr-rng"
 
-#define SPAPR_MEMORY_BLOCK_SIZE ((hwaddr)1 << 28) /* 256MB */
+#define SPAPR_MEMORY_BLOCK_SIZE ((hwaddr)1 << 34) /* 16GB */
 
 /*
  * This defines the maximum number of DIMM slots we can have for sPAPR
