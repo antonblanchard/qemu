@@ -567,9 +567,11 @@ static int spapr_dt_dynamic_reconfiguration_memory(SpaprMachineState *spapr,
     /*
      * Don't create the node if there is no device memory
      */
+#if 0
     if (machine->ram_size == machine->maxram_size) {
         return 0;
     }
+#endif
 
     offset = fdt_add_subnode(fdt, 0, "ibm,dynamic-reconfiguration-memory");
 
